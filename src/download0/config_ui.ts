@@ -44,9 +44,9 @@ if (typeof lang === 'undefined') {
     music: boolean
     jb_behavior: number
   } = {
-    autolapse: false,
+    autolapse: true,
     autopoop: false,
-    autoclose: false,
+    autoclose: true,
     music: false,
     jb_behavior: 0
   }
@@ -460,10 +460,10 @@ if (typeof lang === 'undefined') {
       try {
         eval(data || '') // eslint-disable-line no-eval
         if (typeof CONFIG !== 'undefined') {
-          currentConfig.autolapse = CONFIG.autolapse || false
+          currentConfig.autolapse = CONFIG.autolapse || true
           currentConfig.autopoop = CONFIG.autopoop || false
-          currentConfig.autoclose = CONFIG.autoclose || false
-          currentConfig.music = CONFIG.music !== false
+          currentConfig.autoclose = CONFIG.autoclose || true
+          currentConfig.music = CONFIG.music === false
           currentConfig.jb_behavior = CONFIG.jb_behavior || 0
 
           // Preserve user's payloads
