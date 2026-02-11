@@ -69,7 +69,6 @@ try {
     });
     jsmaf.root.children.push(logo);
     
-
     
     jsmaf.onKeyDown = function(keyCode) {
         //1 = l3
@@ -116,31 +115,6 @@ try {
         
     }
     
-    
-    
-    var bg_success = new Image({
-        url: "file:///../download0/img/pass.jpg",
-        x: 0,
-        y: 0,
-        width: 1920,
-        height: 1080
-    });
-
-    // Background
-    var bg_fail = new Image({
-        url: "file:///../download0/img/fail.jpg",
-        x: 0,
-        y: 0,
-        width: 1920,
-        height: 1080
-    });
-    
-
-
-   
-   
-
-
     // Create text objects for each line
     var maxLines = 38;
     var logTextLines = [];

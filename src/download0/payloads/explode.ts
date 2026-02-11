@@ -43,9 +43,9 @@ import { fn, BigInt, mem } from 'download0/types'
   const O_RDONLY = 0
 
   // ===== VIDEO CONFIGURATION =====
-  const VIDEO_DIR = '/download0/vid'
-  const PLAYLIST_FILE = 'cat-meow.m3u8'
-  const SEGMENT_FILES = ['cat-meow0.ts']
+  const VIDEO_DIR = '/download0'
+  const PLAYLIST_FILE = ''
+  const SEGMENT_FILES = ['']
   // ================================
 
   // Create server socket
@@ -238,61 +238,11 @@ import { fn, BigInt, mem } from 'download0/types'
   mem.view(timeout).setUint32(12, 0, true)
 
   // Non-blocking server loop using select()
-  function serverLoop () {
-    if (!serverRunning) return
-
-    // Clear fd_set and set our server fd
-    for (let i = 0; i < 128; i++) {
-      mem.view(readfds).setUint8(i, 0)
-    }
-
-    // Set the bit for our server socket fd
-    const fd = srv.lo
-    const byte_index = Math.floor(fd / 8)
-    const bit_index = fd % 8
-    const current = mem.view(readfds).getUint8(byte_index)
-    mem.view(readfds).setUint8(byte_index, current | (1 << bit_index))
-
-    // Poll with select() - returns immediately
-    const nfds = fd + 1
-    const select_ret = select_sys(new BigInt(0, nfds), readfds, new BigInt(0, 0), new BigInt(0, 0), timeout)
-
-    // If select returns 0, no connections ready
-    if (select_ret.lo <= 0) {
-      return // No connection, exit without blocking
-    }
-
-    // Connection is ready, now accept() won't block
-    const client_addr = mem.malloc(16)
-    const client_len = mem.malloc(4)
-    mem.view(client_len).setUint32(0, 16, true)
-
-    const client_ret = accept_sys(srv, client_addr, client_len)
-    const client = client_ret instanceof BigInt ? client_ret.lo : client_ret
-
-    if (client >= 0) {
-      requestCount++
-      const req_buf = mem.malloc(4096)
-      const read_ret = read_sys(new BigInt(client), req_buf, new BigInt(0, 4096))
-      const bytes = read_ret instanceof BigInt ? read_ret.lo : read_ret
-
-      if (bytes > 0) {
-        const path = get_path(req_buf, bytes)
-        log('Request #' + requestCount + ': ' + path)
-
-        // Check if requesting playlist
-        if (path === '/' + PLAYLIST_FILE || path.indexOf('/' + PLAYLIST_FILE) >= 0) {
+if (path === '/' + PLAYLIST_FILE || path.indexOf('/' + PLAYLIST_FILE) >= 0) {
           send_file(client, VIDEO_DIR + '/' + PLAYLIST_FILE, 'application/vnd.apple.mpegurl')
         } else {
           // Check if requesting any segment file
           let handled = false
-          for (let i = 0; i < SEGMENT_FILES.length; i++) {
-            if (path === '/' + SEGMENT_FILES[i] || path.indexOf('/' + SEGMENT_FILES[i]) >= 0) {
-              send_file(client, VIDEO_DIR + '/' + SEGMENT_FILES[i], 'video/MP2T')
-              handled = true
-              break
-            }
-          }
           if (!handled) {
             send_response(client, 'text/plain', 'Video server running')
           }
@@ -303,16 +253,8 @@ import { fn, BigInt, mem } from 'download0/types'
   }
 
   // Monitor playback and preload next video near the end
-  jsmaf.onEnterFrame = function () {
-    serverLoop()
 
-    if (currentVideo.duration > 0 && currentVideo.elapsed > 0) {
-      // Start preloading when 70% through current video
-      const threshold = currentVideo.duration * 0.7
-      if (!preloadStarted && currentVideo.elapsed >= threshold) {
-        log('Preloading next video at ' + currentVideo.elapsed + 'ms...')
-        preloadStarted = true
-        nextVideo.open(videoUrl)
+
       }
     }
   }
@@ -328,7 +270,7 @@ import { fn, BigInt, mem } from 'download0/types'
       // Shutdown server socket (stops accepting new connections)
       try {
         const SHUT_RDWR = 2
-        shutdown_sys(srv, new BigInt(0, SHUT_RDWR))
+        shutdown_sys(srv, new BigInt(0,        nextVideo.open(videoUrl) SHUT_RDWR))
         log('Server socket shutdown')
       } catch (e) {
         log('Error shutting down server: ' + (e as Error).message)
@@ -345,6 +287,68 @@ import { fn, BigInt, mem } from 'download0/types'
       // Close video players
       try {
         currentVideo.close()
+        log('Current video closed')
+      } catch (e) {
+        log('Error closing current video: ' + (e as Error).message)
+      }
+
+      try {
+        nextVideo.close()
+        log('Next video closed')
+      } catch (e) {
+        log('Error closing next video: ' + (e as Error).message)
+      }
+
+      // Clear handlers
+      jsmaf.onEnterFrame = null
+      jsmaf.onKeyDown = null
+
+      log('Cleanup complete, returning 
+          for (let i = 0; i < SEGMENT_FILES.length; i++) {
+            if (path === '/' + SEGMENT_FILES[i] || path.indexOf('/' + SEGMENT_FILES[i]) >= 0) {
+              send_file(client, VIDEO_DIR + '/' + SEGMENT_FILES[i], 'video/MP2T')
+              handled = true
+              break
+            }
+          }to main menu in 500ms...')
+
+      // Small delay to let everything settle
+      const cleanup_start = Date.now()
+      while (Date.now() - cleanup_start < 500) {
+        // Wait
+      }
+
+      include('main-menu.js')
+    }
+  }
+
+  log('Server ready! Using select() for non-blocking I/O.')
+  log('Starting seamless looping video...')
+  log('Video URL: ' + videoUrl)
+
+  // Auto-start first video
+  video1.open(videoUrl)
+})()
+)
+
+      // Small delay to let everything settle
+      const cleanup_start = Date.now()
+      while (Date.now() - cleanup_start < 500) {
+        // Wait
+      }
+
+      include('main-menu.js')
+    }
+  }
+
+  log('Server ready! Using select() for non-blocking I/O.')
+  log('Starting seamless looping video...')
+  log('Video URL: ' + videoUrl)
+
+  // Auto-start first video
+  video1.open(videoUrl)
+})()
+ o.close()
         log('Current video closed')
       } catch (e) {
         log('Error closing current video: ' + (e as Error).message)
@@ -380,3 +384,23 @@ import { fn, BigInt, mem } from 'download0/types'
   // Auto-start first video
   video1.open(videoUrl)
 })()
+)
+
+      // Small delay to let everything settle
+      const cleanup_start = Date.now()
+      while (Date.now() - cleanup_start < 500) {
+        // Wait
+      }
+
+      include('main-menu.js')
+    }
+  }
+
+  log('Server ready! Using select() for non-blocking I/O.')
+  log('Starting seamless looping video...')
+  log('Video URL: ' + videoUrl)
+
+  // Auto-start first video
+  video1.open(videoUrl)
+})()
+                                                                                                                                                                                                                                                          

@@ -109,6 +109,3 @@ declare class Video {
   open (url: string): void
   close (): void
 }
-
-declare var bg_success: Image
-declare var bg_fail: Image

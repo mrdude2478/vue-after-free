@@ -25,15 +25,8 @@ log('All scripts loaded')
 stats.load()
 
 export function show_success () {
-  setTimeout(() => {
-    log('Logging Success...')
     stats.incrementSuccess()
-  }, 2000)
 }
-
-const audio = new jsmaf.AudioClip()
-audio.volume = 0.5  // 50% volume
-// audio.open('file://../download0/sfx/bgm.wav')
 
 const is_jailbroken = checkJailbroken()
 
