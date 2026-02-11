@@ -118,14 +118,8 @@ try {
     
     
     
-    // Random image selection for success/fail screens
-    var successImageCount = 50;
-    var failImageCount = 60;
-    var randomSuccessNum = Math.floor(Math.random() * successImageCount) + 1;
-    var randomFailNum = Math.floor(Math.random() * failImageCount) + 1;
-
     var bg_success = new Image({
-        url: "file:///../download0/img/susec/" + randomSuccessNum + ".jpg",
+        url: "file:///../download0/img/pass.jpg",
         x: 0,
         y: 0,
         width: 1920,
@@ -134,7 +128,7 @@ try {
 
     // Background
     var bg_fail = new Image({
-        url: "file:///../download0/img/feil/" + randomFailNum + ".jpg",
+        url: "file:///../download0/img/fail.jpg",
         x: 0,
         y: 0,
         width: 1920,
