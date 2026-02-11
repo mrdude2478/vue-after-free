@@ -26,7 +26,6 @@ stats.load()
 
 export function show_success () {
   setTimeout(() => {
-    jsmaf.root.children.push(bg_success)
     log('Logging Success...')
     stats.incrementSuccess()
   }, 2000)
