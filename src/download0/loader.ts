@@ -121,7 +121,7 @@ if (!is_jailbroken) {
   // Only wait for lapse - netctrl handles its own completion
   if (use_lapse) {
     const start_time = Date.now()
-    const max_wait_seconds = 1 // original 5
+    const max_wait_seconds = 5 // original 5
     const max_wait_ms = max_wait_seconds * 1000
 
     while (!is_exploit_complete()) {
