@@ -160,7 +160,8 @@ if (!is_jailbroken) {
     }
   }
 } else {
-  utils.notify('Already Jailbroken!')
+  //remove annoying popup, since we already know we are jailbroken.
+  //utils.notify('Already Jailbroken!')
   include('main-menu.js')
 }
 
