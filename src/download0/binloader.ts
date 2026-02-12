@@ -753,7 +753,7 @@ export function binloader_init () {
     bin_loader_main()
   } else {
     if (bl_file_exists('/data/payloads/elfldr.elf')) {
-      //bl_load_from_file('/data/payloads/elfldr.elf')
+      // bl_load_from_file('/data/payloads/elfldr.elf')
       undefined // do nothing (stops this loading automatically)
     } else {
       log(payload + ' not found!')
