@@ -85,7 +85,7 @@ jobs:
             set -e
 
             # Create 256MB image file
-            truncate -s 256M download0.dat
+            truncate -s 128M download0.dat
 
             # Attach as memory disk (returns e.g. "md0")
             MD=$(mdconfig -a -t vnode -f "$(pwd)/download0.dat")
