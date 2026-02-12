@@ -32,6 +32,15 @@ declare namespace jsmaf {
     broadcast (data: string): void
   }
 
+  declare class AudioClip {
+    volume: number
+
+    constructor ()
+    open (url: string): void
+    stop (): void
+    close (): void
+  }
+
   declare class XMLHttpRequest {
     readyState: number
     status: number

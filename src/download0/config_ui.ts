@@ -51,6 +51,7 @@ if (typeof lang === 'undefined') {
 
   // Store user's payloads so we don't overwrite them
   let userPayloads: string[] = []
+  let configLoaded = false
 
   const jbBehaviorLabels = [lang.jbBehaviorAuto, lang.jbBehaviorNetctrl, lang.jbBehaviorLapse]
   const jbBehaviorImgKeys = ['jbBehaviorAuto', 'jbBehaviorNetctrl', 'jbBehaviorLapse']
@@ -415,6 +416,10 @@ if (typeof lang === 'undefined') {
   }
 
   function saveConfig () {
+  	if (!configLoaded) {
+      log('Config not loaded yet, skipping save')
+      return
+    }
     let configContent = 'const CONFIG = {\n'
     configContent += '    autolapse: ' + currentConfig.autolapse + ',\n'
     configContent += '    autopoop: ' + currentConfig.autopoop + ',\n'
@@ -463,10 +468,12 @@ if (typeof lang === 'undefined') {
           for (let i = 0; i < configOptions.length; i++) {
             updateValueText(i)
           }
+          configLoaded = true
           log('Config loaded successfully')
         }
       } catch (e) {
         log('ERROR: Failed to parse config: ' + (e as Error).message)
+        configLoaded = true // Allow saving even on error
       }
     })
   }
