@@ -46,7 +46,7 @@ import { fn, BigInt } from 'download0/types'
   const menuOptions = [
     { label: lang.payloadMenu, script: 'payload_host.js', imgKey: 'payloadMenu' },
     // Jailbreak button is not required, since we are already jailbroken if we see this menu....
-    //{ label: lang.jailbreak, script: 'loader.js', imgKey: 'jailbreak' },
+    // { label: lang.jailbreak, script: 'loader.js', imgKey: 'jailbreak' },
     { label: lang.config, script: 'config_ui.js', imgKey: 'config' }
   ]
 
