@@ -4,11 +4,11 @@ import { get_fwversion, hex, malloc, read16, read32, read64, send_notification, 
 import { show_success, run_binloader } from 'download0/loader'
 
 if (typeof libc_addr === 'undefined') {
-  include('userland.js');
+  include('userland.js')
 }
-include('kernel.js');
-include('stats-tracker.js');
-include('binloader.js');
+include('kernel.js')
+include('stats-tracker.js')
+include('binloader.js')
 
 if (!String.prototype.padStart) {
   String.prototype.padStart = function padStart (targetLength, padString) {
@@ -1703,7 +1703,7 @@ function kreadslow (addr: BigInt, size: number) {
 
   // Release iov spray.
   write(new BigInt(iov_sock_1), tmp, 1)
-  
+
   if (leak_buffer.eq(0)) {
     debug('kreadslow - No valid leak found')
     wait_iov_recvmsg()

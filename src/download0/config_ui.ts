@@ -416,7 +416,7 @@ if (typeof lang === 'undefined') {
   }
 
   function saveConfig () {
-  	if (!configLoaded) {
+    if (!configLoaded) {
       log('Config not loaded yet, skipping save')
       return
     }
