@@ -109,6 +109,7 @@ export function binloader_init () {
     '/mnt/usb4/payload.bin'
   ]
   const DATA_PAYLOAD_PATH = '/data/payload.bin'
+  const DATA_PAYLOAD_PATH_BACKUP = '/data/payloads/goldhen.bin'
 
   // S_ISREG macro check - file type is regular file
   const S_IFREG = 0x8000
@@ -732,6 +733,14 @@ export function binloader_init () {
       log('Found cached payload: ' + DATA_PAYLOAD_PATH + ' (' + data_size + ' bytes)')
       return bl_load_from_file(DATA_PAYLOAD_PATH, false)
     }
+    // Try using payloads/goldhen.bin
+    else {
+    	const data_size = bl_file_exists(DATA_PAYLOAD_PATH_BACKUP)
+    	if (data_size > 0) {
+    		log('Found cached payload: ' + DATA_PAYLOAD_PATH_BACKUP + ' (' + data_size + ' bytes)')
+    		return bl_load_from_file(DATA_PAYLOAD_PATH_BACKUP, false)
+    	}
+    }
 
     // Priority 3: Fall back to network loader
     log('No payload file found, starting network loader')
@@ -745,7 +754,7 @@ export function binloader_init () {
   if (!is_jailbroken) {
     bin_loader_main()
   } else {
-    bl_load_from_file('/data/payloads/goldhen.bin')
+    bl_load_from_file(DATA_PAYLOAD_PATH_BACKUP)
   }
 
   return {
