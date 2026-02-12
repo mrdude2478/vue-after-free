@@ -751,8 +751,13 @@ export function binloader_init () {
 
   if (!is_jailbroken) {
     bin_loader_main()
-  } else {
-    bl_load_from_file(DATA_PAYLOAD_PATH_BACKUP)
+  } 
+  else {
+  	if (bl_file_exists('/data/payloads/elfldr.elf')) {
+  		bl_load_from_file('/data/payloads/elfldr.elf')
+  	} else {
+  		log(payload + ' not found!')
+  		}
   }
 
   return {
