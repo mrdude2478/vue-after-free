@@ -736,8 +736,8 @@ export function binloader_init () {
     // Try using payloads/goldhen.bin
     const data_size2 = bl_file_exists(DATA_PAYLOAD_PATH_BACKUP)
     if (data_size2 > 0) {
-    		log('Found cached payload: ' + DATA_PAYLOAD_PATH_BACKUP + ' (' + data_size2 + ' bytes)')
-    		return bl_load_from_file(DATA_PAYLOAD_PATH_BACKUP, false)
+      log('Found cached payload: ' + DATA_PAYLOAD_PATH_BACKUP + ' (' + data_size2 + ' bytes)')
+      return bl_load_from_file(DATA_PAYLOAD_PATH_BACKUP, false)
     }
 
     // Priority 3: Fall back to network loader
