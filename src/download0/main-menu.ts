@@ -44,8 +44,8 @@ import { fn, BigInt } from 'download0/types'
   jsmaf.root.children.push(logo)
 
   const menuOptions = [
-    { label: lang.jailbreak, script: 'loader.js', imgKey: 'jailbreak' },
     { label: lang.payloadMenu, script: 'payload_host.js', imgKey: 'payloadMenu' },
+    { label: lang.jailbreak, script: 'loader.js', imgKey: 'jailbreak' },
     { label: lang.config, script: 'config_ui.js', imgKey: 'config' }
   ]
 
