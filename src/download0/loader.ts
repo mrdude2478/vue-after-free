@@ -148,7 +148,7 @@ if (!is_jailbroken) {
   if (use_lapse) {
     log('Initializing binloader...')
     try {
-      //binloader_init()
+      // binloader_init()
       log('Binloader initialized and running!')
     } catch (e) {
       log('ERROR: Failed to initialize binloader')
