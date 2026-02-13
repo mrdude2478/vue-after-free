@@ -745,7 +745,7 @@ export function binloader_init () {
       log('Found cached payload: ' + DATA_PAYLOAD_PATH + ' (' + data_size + ' bytes)')
       return bl_load_from_file(DATA_PAYLOAD_PATH, false)
     }
-    
+
     // Priority 3: Try using goldhen.bin
     const goldhen = '/data/payloads/goldhen.bin'
     data_size = bl_file_exists(goldhen)
@@ -753,7 +753,7 @@ export function binloader_init () {
       log('Found cached payload: ' + goldhen + ' (' + data_size + ' bytes)')
       return bl_load_from_file(goldhen, false)
     }
-    
+
     // Priority 4: Try using elfldr.elf
     const elfldr = '/data/payloads/elfldr.elf'
     data_size = bl_file_exists(elfldr)
@@ -769,17 +769,15 @@ export function binloader_init () {
   }
 
   if (!binloader_auto_run_done) {
-  	binloader_auto_run_done = true
-  	if (!is_jailbroken) {
-  		bin_loader_main()
-    }
-    else {
-    	if (bl_file_exists('/data/payloads/elfldr.elf')) {
-    		bl_load_from_file('/data/payloads/elfldr.elf')
-    	}
-    	else {
-    		log(payload + ' not found!')
-    	}
+    binloader_auto_run_done = true
+    if (!is_jailbroken) {
+      bin_loader_main()
+    } else {
+      if (bl_file_exists('/data/payloads/elfldr.elf')) {
+        bl_load_from_file('/data/payloads/elfldr.elf')
+      } else {
+        log(payload + ' not found!')
+      }
     }
   }
 
