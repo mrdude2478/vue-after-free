@@ -754,6 +754,14 @@ export function binloader_init () {
       return bl_load_from_file(goldhen, false)
     }
 
+    // Priority 4: Try using elfldr.elf
+    const elfldr = '/data/payloads/elfldr.elf'
+    data_size = bl_file_exists(elfldr)
+    if (data_size > 0) {
+      log('Found cached payload: ' + elfldr + ' (' + data_size + ' bytes)')
+      return bl_load_from_file(elfldr, false)
+    }
+
     // Priority 5: Fall back to network loader
     log('No payload file found, starting network loader')
     utils.notify('No payload found.\nStarting network loader...')
@@ -764,8 +772,7 @@ export function binloader_init () {
     binloader_auto_run_done = true
     if (!is_jailbroken) {
       bin_loader_main()
-    }
-    else {
+    } else {
     	//it seems this is required for selecting and running payloads
     	//add back to download0.dat or modify the code later so we can run a selected payload
     	//properly without needing this file.
@@ -776,6 +783,7 @@ export function binloader_init () {
       	log(payload + ' not found!')
       }
     }
+  }
 
   return {
     bl_load_from_file,
