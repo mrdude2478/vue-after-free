@@ -745,36 +745,46 @@ export function binloader_init () {
       log('Found cached payload: ' + DATA_PAYLOAD_PATH + ' (' + data_size + ' bytes)')
       return bl_load_from_file(DATA_PAYLOAD_PATH, false)
     }
-    // Try using payloads/goldhen.bin
+    
+    // Priority 3: Try using goldhen.bin
     const goldhen = '/data/payloads/goldhen.bin'
     data_size = bl_file_exists(goldhen)
     if (data_size > 0) {
       log('Found cached payload: ' + goldhen + ' (' + data_size + ' bytes)')
       return bl_load_from_file(goldhen, false)
     }
+    
+    // Priority 4: Try using elfldr.elf
+    const elfldr = '/data/payloads/elfldr.elf'
+    data_size = bl_file_exists(elfldr)
+    if (data_size > 0) {
+      log('Found cached payload: ' + elfldr + ' (' + data_size + ' bytes)')
+      return bl_load_from_file(elfldr, false)
+    }
 
-    // Priority 3: Fall back to network loader
+    // Priority 5: Fall back to network loader
     log('No payload file found, starting network loader')
     utils.notify('No payload found.\nStarting network loader...')
     return bl_network_loader()
   }
 
   if (!binloader_auto_run_done) {
-    binloader_auto_run_done = true
-    if (!is_jailbroken) {
-      bin_loader_main()
-    } else {
-      if (bl_file_exists('/data/payloads/elfldr.elf') && (data_size ! > 0)) {
-        bl_load_from_file('/data/payloads/elfldr.elf')
-      } else {
-        log(payload + ' not found!')
-      }
+  	binloader_auto_run_done = true
+  	if (!is_jailbroken) {
+  		bin_loader_main()
+    }
+    else {
+    	if (bl_file_exists('/data/payloads/elfldr.elf')) {
+    		bl_load_from_file('/data/payloads/elfldr.elf')
+    	}
+    	else {
+    		log(payload + ' not found!')
+    	}
     }
   }
 
   return {
-    bl_load_from_file,
-    bl_network_loader
+    bl_load_from_file
   }
 }
 
