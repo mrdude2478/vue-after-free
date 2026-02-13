@@ -146,12 +146,9 @@ if (!is_jailbroken) {
   }
   // Only run binloader for lapse - netctrl handles its own
   if (use_lapse) {
-    //log('Initializing binloader...')
-    log('Test...')
-    /*
-
+    log('Initializing binloader...')
     try {
-      binloader_init()
+      //binloader_init()
       log('Binloader initialized and running!')
     } catch (e) {
       log('ERROR: Failed to initialize binloader')
@@ -163,7 +160,6 @@ if (!is_jailbroken) {
       throw e
     }
   }
-  */
 } else {
   // remove annoying popup, since we already know we are jailbroken.
   // utils.notify('Already Jailbroken!')
