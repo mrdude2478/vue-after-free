@@ -8,6 +8,8 @@ import { show_success } from 'download0/loader'
 // Usage: include('binloader.js') before userland/lapse
 //        After lapse completes, call: binloader_init()
 
+let binloader_auto_run_done = false
+
 // Define binloader_init function
 export function binloader_init () {
   log('binloader_init(): Initializing binloader...')
@@ -606,8 +608,19 @@ export function binloader_init () {
 
     try {
       BinLoader.init(payload.buf, payload.size)
-      BinLoader.run()
-      log('Payload loaded successfully')
+
+      if (!skip_autoclose) {
+        show_success(true, true)
+        log('Running payload in 3 seconds...')
+        const id = jsmaf.setInterval(function () {
+          jsmaf.clearInterval(id)
+          BinLoader.run()
+          log('Payload loaded successfully')
+        }, 3000)
+      } else {
+        BinLoader.run()
+        log('Payload loaded successfully')
+      }
     } catch (e) {
       log('ERROR loading payload: ' + (e as Error).message)
       if ((e as Error).stack) log((e as Error).stack ?? '')
@@ -616,6 +629,7 @@ export function binloader_init () {
 
     return true
   }
+  
 
   // Network binloader (fallback)
   function bl_network_loader () {
@@ -746,17 +760,18 @@ export function binloader_init () {
     return bl_network_loader()
   }
 
-  // End of binloader_init() function
-  // Call bin_loader_main() to start binloader
-
-  if (!is_jailbroken) {
-    bin_loader_main()
-  } else {
-    if (bl_file_exists('/data/payloads/elfldr.elf')) {
-      // bl_load_from_file('/data/payloads/elfldr.elf')
-      undefined // do nothing (stops this loading automatically)
-    } else {
-      log(payload + ' not found!')
+  if (!binloader_auto_run_done) {
+  	binloader_auto_run_done = true
+  	if (!is_jailbroken) {
+  		bin_loader_main()
+    }
+    else {
+    	if (bl_file_exists('/data/payloads/elfldr.elf')) {
+    		bl_load_from_file('/data/payloads/elfldr.elf')
+    	}
+    	else {
+    		log(payload + ' not found!')
+    	}
     }
   }
 
