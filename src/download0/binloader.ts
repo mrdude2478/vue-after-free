@@ -9,7 +9,6 @@ import { show_success } from 'download0/loader'
 //        After lapse completes, call: binloader_init()
 
 let binloader_auto_run_done = false
-let payload_done = false
 
 // Define binloader_init function
 export function binloader_init () {
@@ -743,7 +742,6 @@ export function binloader_init () {
     // Priority 2: Check for cached /data payload
     let data_size = bl_file_exists(DATA_PAYLOAD_PATH)
     if (data_size > 0) {
-      payload_done = true
       log('Found cached payload: ' + DATA_PAYLOAD_PATH + ' (' + data_size + ' bytes)')
       return bl_load_from_file(DATA_PAYLOAD_PATH, false)
     }
@@ -751,7 +749,6 @@ export function binloader_init () {
     const goldhen = '/data/payloads/goldhen.bin'
     data_size = bl_file_exists(goldhen)
     if (data_size > 0) {
-      payload_done = true
       log('Found cached payload: ' + goldhen + ' (' + data_size + ' bytes)')
       return bl_load_from_file(goldhen, false)
     }
@@ -767,7 +764,7 @@ export function binloader_init () {
     if (!is_jailbroken) {
       bin_loader_main()
     } else {
-      if (bl_file_exists('/data/payloads/elfldr.elf') && !payload_done) {
+      if (bl_file_exists('/data/payloads/elfldr.elf') && (data_size !> 0)) {
         bl_load_from_file('/data/payloads/elfldr.elf')
       } else {
         log(payload + ' not found!')
