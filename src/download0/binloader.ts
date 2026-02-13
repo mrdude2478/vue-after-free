@@ -718,24 +718,28 @@ export function binloader_init () {
         }
       }
     }
-
-    // Priority 1: Check for USB payload on usb0-usb4 (like BD-JB does)
-    for (const usb_path of USB_PAYLOAD_PATHS) {
-      const usb_size = bl_file_exists(usb_path)
-
-      if (usb_size > 0) {
-        log('Found USB payload: ' + usb_path + ' (' + usb_size + ' bytes)')
-        utils.notify('USB payload found!\nCopying to /data...')
-
-        // Copy USB payload to /data for future use
-        if (bl_copy_file(usb_path, DATA_PAYLOAD_PATH)) {
-          log('Copied to ' + DATA_PAYLOAD_PATH)
-        } else {
-          log('Warning: Failed to copy to /data, running from USB')
+    
+    const goldhen = '/data/payloads/goldhen.bin'
+    
+    if (!bl_file_exists(DATA_PAYLOAD_PATH) && !bl_file_exists(goldhen)) {
+    	// Priority 1: Check for USB payload on usb0-usb4 (like BD-JB does)
+      for (const usb_path of USB_PAYLOAD_PATHS) {
+        const usb_size = bl_file_exists(usb_path)
+  
+        if (usb_size > 0) {
+          log('Found USB payload: ' + usb_path + ' (' + usb_size + ' bytes)')
+          utils.notify('USB payload found!\nCopying to /data...')
+  
+          // Copy USB payload to /data for future use
+          if (bl_copy_file(usb_path, DATA_PAYLOAD_PATH)) {
+            log('Copied to ' + DATA_PAYLOAD_PATH)
+          } else {
+            log('Warning: Failed to copy to /data, running from USB')
+          }
+  
+          // Load from USB
+          return bl_load_from_file(usb_path, false)
         }
-
-        // Load from USB
-        return bl_load_from_file(usb_path, false)
       }
     }
 
@@ -747,7 +751,6 @@ export function binloader_init () {
     }
 
     // Priority 3: Try using goldhen.bin
-    const goldhen = '/data/payloads/goldhen.bin'
     data_size = bl_file_exists(goldhen)
     if (data_size > 0) {
       log('Found cached payload: ' + goldhen + ' (' + data_size + ' bytes)')
@@ -773,13 +776,13 @@ export function binloader_init () {
     if (!is_jailbroken) {
       bin_loader_main()
     } else {
-      // it seems this is required for selecting and running payloads
-      // add back to download0.dat or modify the code later so we can run a selected payload
-      // properly without needing this file.
-      if (bl_file_exists('/data/payloads/elfldr.elf')) {
-        bl_load_from_file('/data/payloads/elfldr.elf')
-      } else {
-        log(payload + ' not found!')
+    	//it seems this is required for selecting and running payloads
+    	//even if the elfldr.elf does not exist ???
+    	if (bl_file_exists('/data/payloads/elfldr.elf')) {
+    		bl_load_from_file('/data/payloads/elfldr.elf')
+      }
+      else {
+      	log(payload + ' not found!')
       }
     }
   }
