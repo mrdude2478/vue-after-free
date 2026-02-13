@@ -9,6 +9,7 @@ import { show_success } from 'download0/loader'
 //        After lapse completes, call: binloader_init()
 
 let binloader_auto_run_done = false
+let payload_done = false
 
 // Define binloader_init function
 export function binloader_init () {
@@ -111,7 +112,6 @@ export function binloader_init () {
     '/mnt/usb4/payload.bin'
   ]
   const DATA_PAYLOAD_PATH = '/data/payload.bin'
-  const DATA_PAYLOAD_PATH_BACKUP = '/data/payloads/goldhen.bin'
 
   // S_ISREG macro check - file type is regular file
   const S_IFREG = 0x8000
@@ -741,16 +741,19 @@ export function binloader_init () {
     }
 
     // Priority 2: Check for cached /data payload
-    const data_size = bl_file_exists(DATA_PAYLOAD_PATH)
+    let data_size = bl_file_exists(DATA_PAYLOAD_PATH)
     if (data_size > 0) {
+    	payload_done = true
       log('Found cached payload: ' + DATA_PAYLOAD_PATH + ' (' + data_size + ' bytes)')
       return bl_load_from_file(DATA_PAYLOAD_PATH, false)
     }
     // Try using payloads/goldhen.bin
-    const data_size2 = bl_file_exists(DATA_PAYLOAD_PATH_BACKUP)
-    if (data_size2 > 0) {
-      log('Found cached payload: ' + DATA_PAYLOAD_PATH_BACKUP + ' (' + data_size2 + ' bytes)')
-      return bl_load_from_file(DATA_PAYLOAD_PATH_BACKUP, false)
+    const goldhen = '/data/payloads/goldhen.bin'
+    data_size = bl_file_exists(goldhen)
+    if (data_size > 0) {
+    	payload_done = true
+      log('Found cached payload: ' + goldhen + ' (' + data_size + ' bytes)')
+      return bl_load_from_file(goldhen, false)
     }
 
     // Priority 3: Fall back to network loader
@@ -764,7 +767,7 @@ export function binloader_init () {
     if (!is_jailbroken) {
       bin_loader_main()
     } else {
-      if (bl_file_exists('/data/payloads/elfldr.elf')) {
+      if (bl_file_exists('/data/payloads/elfldr.elf') && !payload_done) {
         bl_load_from_file('/data/payloads/elfldr.elf')
       } else {
         log(payload + ' not found!')
